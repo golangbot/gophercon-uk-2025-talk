@@ -13,20 +13,28 @@ import (
 )
 
 func createS3Bucket(s3Client s3.Client, name string, region string) error {
-	if _, err := s3Client.CreateBucket(context.TODO(), &s3.CreateBucketInput{
-		Bucket: aws.String(name),
-		CreateBucketConfiguration: &types.CreateBucketConfiguration{
-			LocationConstraint: types.BucketLocationConstraint(region),
-		},
-	}); err != nil {
-		return err
+	var lastError error
+	for range 3 {
+		if _, err := s3Client.CreateBucket(context.TODO(), &s3.CreateBucketInput{
+			Bucket: aws.String(name),
+			CreateBucketConfiguration: &types.CreateBucketConfiguration{
+				LocationConstraint: types.BucketLocationConstraint(region),
+			},
+		}); err != nil {
+			slog.Error("Failed to create S3 bucket", "bucket", name, "error", err)
+			lastError = err
+			continue
+		}
+		if err := s3.NewBucketExistsWaiter(&s3Client).Wait(
+			context.TODO(), &s3.HeadBucketInput{Bucket: aws.String(name)}, time.Minute); err != nil {
+			log.Printf("Failed attempt to wait for bucket %s to exist.\n", name)
+			lastError = err
+			continue
+		}
+		return nil
 	}
-	if err := s3.NewBucketExistsWaiter(&s3Client).Wait(
-		context.TODO(), &s3.HeadBucketInput{Bucket: aws.String(name)}, time.Minute); err != nil {
-		log.Printf("Failed attempt to wait for bucket %s to exist.\n", name)
-		return err
-	}
-	return nil
+	slog.Error("Failed to create S3 bucket after multiple attempts", "bucket", name, "error", lastError)
+	return lastError
 }
 
 func main() {
@@ -40,13 +48,9 @@ func main() {
 
 	s3Client := s3.NewFromConfig(cfg)
 	bucketPrefix := "gopherconuk-2025"
-	for range 3 {
-		if err := createS3Bucket(*s3Client, bucketPrefix+"my-new-bucket-3", "eu-west-2"); err != nil {
-			slog.Error("Failed to create S3 bucket", "error", err)
-			time.Sleep(5 * time.Second)
-			continue
-		}
-		slog.Info("S3 bucket created successfully")
-		break
+	if err := createS3Bucket(*s3Client, bucketPrefix+"my-new-bucket-3", "eu-west-2"); err != nil {
+		slog.Error("Failed to create S3 bucket", "error", err)
+		return
 	}
+	slog.Info("S3 bucket created successfully")
 }
