@@ -12,7 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
-func createS3Bucket(s3Client s3.Client, name string, region string) error {
+func createS3Bucket(s3Client *s3.Client, name string, region string) error {
 	var lastError error
 	for range 3 {
 		if _, err := s3Client.CreateBucket(context.TODO(), &s3.CreateBucketInput{
@@ -25,7 +25,7 @@ func createS3Bucket(s3Client s3.Client, name string, region string) error {
 			lastError = err
 			continue
 		}
-		if err := s3.NewBucketExistsWaiter(&s3Client).Wait(
+		if err := s3.NewBucketExistsWaiter(s3Client).Wait(
 			context.TODO(), &s3.HeadBucketInput{Bucket: aws.String(name)}, time.Minute); err != nil {
 			log.Printf("Failed attempt to wait for bucket %s to exist.\n", name)
 			lastError = err
@@ -48,7 +48,7 @@ func main() {
 
 	s3Client := s3.NewFromConfig(cfg)
 	bucketPrefix := "gopherconuk-2025"
-	if err := createS3Bucket(*s3Client, bucketPrefix+"my-new-bucket-3", "eu-west-2"); err != nil {
+	if err := createS3Bucket(s3Client, bucketPrefix+"my-new-bucket-3", "eu-west-2"); err != nil {
 		slog.Error("Failed to create S3 bucket", "error", err)
 		return
 	}
