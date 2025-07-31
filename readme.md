@@ -1,0 +1,1 @@
+docker run --network=host --rm -it shopify/toxiproxy:2.1.4
