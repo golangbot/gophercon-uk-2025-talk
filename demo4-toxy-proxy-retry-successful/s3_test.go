@@ -68,7 +68,7 @@ func Test_createS3BucketSuccessfulRetry(t *testing.T) {
 						return nil, err
 					}
 					return tls.Client(conn, &tls.Config{
-						InsecureSkipVerify: true,
+						ServerName: "s3.eu-west-2.amazonaws.com",
 					}), nil
 				},
 			},
