@@ -102,7 +102,7 @@ func Test_createS3BucketSuccessfulRetry(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			//	defer deleteBucket(tt.args.s3Client, tt.args.name, "eu-west-2")
+			defer deleteBucket(tt.args.s3Client, tt.args.name, "eu-west-2")
 			if err := createS3Bucket(tt.args.s3Client, tt.args.name, tt.args.region); (err != nil) != tt.wantErr {
 				t.Errorf("createS3Bucket() error = %v, wantErr %v", err, tt.wantErr)
 			}
