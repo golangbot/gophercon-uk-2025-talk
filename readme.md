@@ -14,3 +14,8 @@ aws --endpoint-url=http://localhost:4566 s3 ls
 localstack is not a self signed cert, they own the domain and point the dns to 127.0.0.1
 
 so aws --endpoint-url=https://localhost.localstack.cloud:4566 s3 ls works too
+
+
+go install github.com/vektra/mockery/v3@v3.5.1
+
+mockery
