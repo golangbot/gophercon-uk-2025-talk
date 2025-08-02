@@ -10,9 +10,7 @@ import (
 )
 
 func Test_createS3Bucket(t *testing.T) {
-	cfg, err := config.LoadDefaultConfig(context.TODO(),
-		config.WithRegion("eu-west-2"),
-	)
+	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		slog.Error("Failed to create AWS session", "error", err)
 		return

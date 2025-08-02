@@ -4,46 +4,36 @@ import (
 	"context"
 	"log/slog"
 	"testing"
+	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 func Test_createS3Bucket(t *testing.T) {
-	cfg, err := config.LoadDefaultConfig(context.TODO(),
-		config.WithRegion("eu-west-2"),
-	)
+	region := "eu-west-2"
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(region))
 	if err != nil {
-		slog.Error("Failed to create AWS session", "error", err)
+		slog.Error("Failed to create AWS config", "error", err)
 		return
 	}
 
 	s3Client := s3.NewFromConfig(cfg)
-	type args struct {
-		s3Client *s3.Client
-		name     string
-		region   string
+	bucketName := "gopherconuk-2025-my-new-bucket"
+	wantErr := false
+
+	defer deleteBucket(s3Client, bucketName, region)
+	if err := createS3Bucket(s3Client, bucketName, region); (err != nil) != wantErr {
+		t.Errorf("createS3Bucket() error = %v, wantErr %v", err, wantErr)
 	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		{
-			name: "Create S3 Bucket",
-			args: args{
-				s3Client: s3Client,
-				name:     "gopherconuk-2025-my-new-bucket",
-				region:   "eu-west-2",
-			},
-		},
+
+	if _, err := s3Client.HeadBucket(context.TODO(), &s3.HeadBucketInput{
+		Bucket: aws.String(bucketName),
+	}); err != nil {
+		t.Errorf("Failed to get S3 bucket: %v", err)
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			defer deleteBucket(tt.args.s3Client, tt.args.name, "eu-west-2")
-			if err := createS3Bucket(tt.args.s3Client, tt.args.name, tt.args.region); (err != nil) != tt.wantErr {
-				t.Errorf("createS3Bucket() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
+
 }
