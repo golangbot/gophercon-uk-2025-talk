@@ -44,13 +44,13 @@ func createS3Bucket(s3Client s3Client, name string, region string) error {
 }
 
 func deleteBucket(s3Client s3Client, name string, region string) error {
-	output, err := s3Client.DeleteBucket(context.TODO(), &s3.DeleteBucketInput{
+	_, err := s3Client.DeleteBucket(context.TODO(), &s3.DeleteBucketInput{
 		Bucket: aws.String(name),
 	})
 	if err != nil {
 		slog.Error("Failed to delete S3 bucket", "bucket", name, "error", err)
 		return err
 	}
-	slog.Info("S3 bucket deleted successfully", "bucket", name, "output", output.ResultMetadata)
+	slog.Info("S3 bucket deleted successfully", "bucket", name)
 	return nil
 }
