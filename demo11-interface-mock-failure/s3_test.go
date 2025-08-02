@@ -1,28 +1,8 @@
 package s3
 
 import (
-	"context"
 	"testing"
-
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
-
-type mockS3Client struct {
-}
-
-func (m mockS3Client) CreateBucket(ctx context.Context, params *s3.CreateBucketInput, optFns ...func(*s3.Options)) (*s3.CreateBucketOutput, error) {
-
-	return &s3.CreateBucketOutput{}, nil
-
-}
-
-func (m mockS3Client) HeadBucket(ctx context.Context, params *s3.HeadBucketInput, optFns ...func(*s3.Options)) (*s3.HeadBucketOutput, error) {
-	return &s3.HeadBucketOutput{}, nil
-}
-
-func (m mockS3Client) DeleteBucket(ctx context.Context, params *s3.DeleteBucketInput, optFns ...func(*s3.Options)) (*s3.DeleteBucketOutput, error) {
-	return &s3.DeleteBucketOutput{}, nil
-}
 
 func Test_createS3BucketSuccessfulRetry(t *testing.T) {
 	mockS3Client := mockS3Client{}
