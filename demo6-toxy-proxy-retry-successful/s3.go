@@ -2,6 +2,7 @@ package s3
 
 import (
 	"context"
+	"log"
 	"log/slog"
 	"time"
 
@@ -27,7 +28,7 @@ func createS3Bucket(s3Client *s3.Client, name string, region string) error {
 		}
 		if err := s3.NewBucketExistsWaiter(s3Client).Wait(
 			ctx, &s3.HeadBucketInput{Bucket: aws.String(name)}, 5*time.Second); err != nil {
-			slog.Error("Failed to wait for bucket", "bucket", name, "error", err)
+			log.Printf("Failed attempt to wait for bucket %s to exist.\n", name)
 			lastError = err
 			continue
 		}

@@ -26,7 +26,7 @@ func Test_createS3BucketSuccessfulRetry(t *testing.T) {
 	toxiClient := toxiproxy.NewClient("localhost:8474")
 	_, err := toxiClient.Populate([]toxiproxy.Proxy{{
 		Name:   "aws_proxy",
-		Listen: "localhost:26379",
+		Listen: "localhost:8443",
 
 		Upstream: "s3.eu-west-2.amazonaws.com:443",
 		Enabled:  true,
@@ -63,7 +63,7 @@ func Test_createS3BucketSuccessfulRetry(t *testing.T) {
 			Transport: &http.Transport{
 				DialTLSContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
 					var d net.Dialer
-					conn, err := d.DialContext(ctx, network, "localhost:26379")
+					conn, err := d.DialContext(ctx, network, "localhost:8443")
 					if err != nil {
 						return nil, err
 					}
