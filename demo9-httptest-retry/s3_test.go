@@ -43,7 +43,7 @@ func Test_createS3BucketSuccessfulRetry(t *testing.T) {
 	toxiClient := toxiproxy.NewClient("localhost:8474")
 	_, err = toxiClient.Populate([]toxiproxy.Proxy{{
 		Name:   "aws_proxy",
-		Listen: "localhost:26379",
+		Listen: "localhost:8443",
 
 		Upstream: host + ":" + port,
 		Enabled:  true,
@@ -80,7 +80,7 @@ func Test_createS3BucketSuccessfulRetry(t *testing.T) {
 			Transport: &http.Transport{
 				DialTLSContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
 					var d net.Dialer
-					conn, err := d.DialContext(ctx, network, "localhost:26379")
+					conn, err := d.DialContext(ctx, network, "localhost:8443")
 					if err != nil {
 						return nil, err
 					}
@@ -115,7 +115,6 @@ func Test_createS3BucketSuccessfulRetry(t *testing.T) {
 		t.Errorf("Failed to remove toxic: %v", err)
 	}
 
-	slog.Info("Testcase  logs", "logs", testLogs.String())
 	if !strings.Contains(testLogs.String(), "Failed to create S3 bucket") {
 		t.Errorf("Expected s3 bucket failure but did not find it in logs")
 	}
