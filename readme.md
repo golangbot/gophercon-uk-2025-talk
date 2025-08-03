@@ -1,5 +1,7 @@
+### Toxi Proxy
 docker run --network=host --rm -it shopify/toxiproxy:2.1.4
 
+curl -v http://localhost:8474/proxies
 
 docker run \
   --rm -it \

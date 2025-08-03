@@ -15,6 +15,7 @@ func createS3Bucket(s3Client *s3.Client, name string, region string) error {
 	retryCount := 3
 	for range retryCount {
 		func() {
+			lastError = nil
 			ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 			defer cancel()
 			if _, err := s3Client.CreateBucket(ctx, &s3.CreateBucketInput{
