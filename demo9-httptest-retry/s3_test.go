@@ -3,6 +3,7 @@ package s3
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"io"
 	"log/slog"
 	"net"
@@ -35,14 +36,9 @@ func Test_createS3BucketSuccessfulRetry(t *testing.T) {
 	host := u.Hostname()
 	port := u.Port()
 
-	var testLogs strings.Builder
-	w := io.MultiWriter(os.Stdout, &testLogs)
-	h := slog.NewTextHandler(w, nil)
-	slog.SetDefault(slog.New(h))
-
 	toxiClient := toxiproxy.NewClient("localhost:8474")
 	_, err = toxiClient.Populate([]toxiproxy.Proxy{{
-		Name:   "aws_proxy",
+		Name:   "s3_proxy",
 		Listen: "localhost:8443",
 
 		Upstream: host + ":" + port,
@@ -52,9 +48,9 @@ func Test_createS3BucketSuccessfulRetry(t *testing.T) {
 		t.Fatalf("Failed to create toxy proxy: %s", err)
 	}
 
-	proxy, err := toxiClient.Proxy("aws_proxy")
+	proxy, err := toxiClient.Proxy("s3_proxy")
 	if err != nil {
-		t.Fatalf("Failed to get aws_proxy: %s", err)
+		t.Fatalf("Failed to get s3_proxy: %s", err)
 	}
 
 	_, err = proxy.AddToxic("latency", "latency", "upstream", 1.0, toxiproxy.Attributes{
@@ -74,6 +70,9 @@ func Test_createS3BucketSuccessfulRetry(t *testing.T) {
 
 	}()
 
+	testRootCA := x509.NewCertPool()
+	testRootCA.AddCert(ts.Certificate())
+
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion("eu-west-2"),
 		config.WithHTTPClient(&http.Client{
@@ -85,7 +84,8 @@ func Test_createS3BucketSuccessfulRetry(t *testing.T) {
 						return nil, err
 					}
 					return tls.Client(conn, &tls.Config{
-						InsecureSkipVerify: true,
+						ServerName: host,
+						RootCAs:    testRootCA,
 					}), nil
 				},
 			},
@@ -95,6 +95,11 @@ func Test_createS3BucketSuccessfulRetry(t *testing.T) {
 		slog.Error("Failed to create AWS session", "error", err)
 		return
 	}
+
+	var testLogs strings.Builder
+	w := io.MultiWriter(os.Stdout, &testLogs)
+	h := slog.NewTextHandler(w, nil)
+	slog.SetDefault(slog.New(h))
 
 	s3Client := s3.NewFromConfig(cfg)
 	bucketName := "gopherconuk-2025-my-new-bucket"
