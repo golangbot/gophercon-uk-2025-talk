@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -18,7 +19,9 @@ func Test_createS3BucketSuccessfulRetry(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	cfg, err := config.LoadDefaultConfig(context.TODO(),
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	cfg, err := config.LoadDefaultConfig(ctx,
 		config.WithRegion("eu-west-2"),
 		config.WithBaseEndpoint(ts.URL),
 		config.WithHTTPClient(ts.Client()),
@@ -29,6 +32,7 @@ func Test_createS3BucketSuccessfulRetry(t *testing.T) {
 	}
 
 	s3Client := s3.NewFromConfig(cfg)
+
 	bucketName := "gopherconuk-2025-my-new-bucket"
 	region := "eu-west-2"
 	wantErr := false
