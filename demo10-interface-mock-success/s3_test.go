@@ -27,15 +27,16 @@ func (m *mockS3Client) DeleteBucket(ctx context.Context, params *s3.DeleteBucket
 }
 
 func Test_createS3BucketSuccessfulRetry(t *testing.T) {
-	mockS3Client := mockS3Client{}
-	bucketName := "gopherconuk-2025-my-new-bucket"
-	region := "eu-west-2"
 	wantErr := false
 	var testLogs strings.Builder
 	w := io.MultiWriter(os.Stdout, &testLogs)
 	h := slog.NewTextHandler(w, nil)
 	slog.SetDefault(slog.New(h))
 
+	bucketName := "gopherconuk-2025-my-new-bucket"
+	region := "eu-west-2"
+
+	mockS3Client := mockS3Client{}
 	defer deleteBucket(&mockS3Client, bucketName, region)
 	if err := createS3Bucket(&mockS3Client, bucketName, region); (err != nil) != wantErr {
 		t.Errorf("createS3Bucket() error = %v, wantErr %v", err, wantErr)

@@ -16,7 +16,9 @@ type mockS3Client struct {
 	callCount map[string]int
 }
 
-func (m mockS3Client) CreateBucket(ctx context.Context, params *s3.CreateBucketInput, optFns ...func(*s3.Options)) (*s3.CreateBucketOutput, error) {
+func (m mockS3Client) CreateBucket(ctx context.Context,
+	params *s3.CreateBucketInput,
+	optFns ...func(*s3.Options)) (*s3.CreateBucketOutput, error) {
 	m.callCount["CreateBucket"] = m.callCount["CreateBucket"] + 1
 	if m.callCount["CreateBucket"] <= 2 {
 		return nil, errors.New("mocked error: failed to create bucket")
