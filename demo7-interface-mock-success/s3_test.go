@@ -2,10 +2,6 @@ package s3
 
 import (
 	"context"
-	"io"
-	"log/slog"
-	"os"
-	"strings"
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -26,15 +22,10 @@ func (m *mockS3Client) DeleteBucket(ctx context.Context, params *s3.DeleteBucket
 	return &s3.DeleteBucketOutput{}, nil
 }
 
-func Test_createS3BucketSuccessfulRetry(t *testing.T) {
-	wantErr := false
-	var testLogs strings.Builder
-	w := io.MultiWriter(os.Stdout, &testLogs)
-	h := slog.NewTextHandler(w, nil)
-	slog.SetDefault(slog.New(h))
-
+func Test_createS3BucketSuccess(t *testing.T) {
 	bucketName := "gopherconuk-2025-my-new-bucket"
 	region := "eu-west-2"
+	wantErr := false
 
 	mockS3Client := mockS3Client{}
 	defer deleteBucket(&mockS3Client, bucketName, region)
