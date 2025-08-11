@@ -36,7 +36,7 @@ func configureToxiProxy(t *testing.T, removeToxicErrCh chan error) {
 	}
 
 	_, err = s3Proxy.AddToxic("latency", "latency", "upstream", 1.0, toxiproxy.Attributes{
-		"latency": 7000,
+		"latency": 30000,
 	})
 	if err != nil {
 		t.Fatalf("Failed to add toxic: %s", err)
