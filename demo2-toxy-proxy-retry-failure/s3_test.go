@@ -72,7 +72,7 @@ func Test_createS3BucketRetryFailure(t *testing.T) {
 	if err := createS3Bucket(s3Client, bucketName, region); (err != nil) != wantErr {
 		t.Errorf("createS3Bucket() error = %v, wantErr %v", err, wantErr)
 	}
-	if _, err := s3Client.HeadBucket(context.TODO(), &s3.HeadBucketInput{
+	if _, err := s3Client.HeadBucket(ctx, &s3.HeadBucketInput{
 		Bucket: aws.String(bucketName),
 	}); err != nil {
 		t.Errorf("Failed to get S3 bucket: %v", err)
