@@ -86,7 +86,7 @@ func Test_createS3BucketSuccessfulRetry(t *testing.T) {
 	h := slog.NewTextHandler(w, nil)
 	slog.SetDefault(slog.New(h))
 
-	//defer deleteBucket(s3Client, bucketName, "eu-west-2")
+	defer deleteBucket(s3Client, bucketName, "eu-west-2")
 	if err := createS3Bucket(s3Client, bucketName, region); (err != nil) != wantErr {
 		t.Errorf("createS3Bucket() error = %v, wantErr %v", err, wantErr)
 	}
