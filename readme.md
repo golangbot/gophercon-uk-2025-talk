@@ -1,7 +1,7 @@
 ### Climbing the Testing Pyramid: From Real Service to Interface Mocks in Go
 This repository contains the source code and presentation used for my GopherCon UK 2025 talk "Climbing the Testing Pyramid: From Real Service to Interface Mocks in Go"
 
-### Toxi Proxy
+### Run Toxi Proxy
 docker run -d --network=host --rm -it shopify/toxiproxy:2.1.4
 
 #### List proxies in Toxi Proxy
